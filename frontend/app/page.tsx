@@ -22,7 +22,8 @@ export default function Home() {
     setStatus('Sending...');
 
     try {
-      const res = await fetch('http://localhost:5000/api/send-email', {
+      const backendUrl = process.env.NEXT_PUBLIC_API_URL;
+      const res = await fetch(`${backendUrl}/api/send-email`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -4,7 +4,26 @@ require('dotenv').config();
 const { Resend } = require('resend');
 
 const app = express();
-app.use(cors());
+
+// Define allowed origins (your Vercel frontend URL and optionally localhost for testing)
+const allowedOrigins = [
+  process.env.FRONTEND_URL, // e.g., https://your-app.vercel.app
+  'http://localhost:3000'   // Optional: remove in strict production
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like Postman or server-to-server) or listed origins
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Blocked by CORS: Origin not allowed'));
+    }
+  },
+  credentials: true, // Required if your app uses cookies or authorization headers
+};
+
+app.use(cors(corsOptions)); // Enable CORS with the defined options
 app.use(express.json()); // Essential for parsing JSON bodies and incoming webhooks
 
 const resend = new Resend(process.env.RESEND_API_KEY);

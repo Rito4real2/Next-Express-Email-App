@@ -23,6 +23,7 @@ export default function Home() {
     setStatus('Sending...');
 
     try {
+      const receiverEmail = process.env.NEXT_PUBLIC_RECEIVER_EMAIL || 'support@inbound.astrofinex.online';
       const backendUrl = process.env.NEXT_PUBLIC_API_URL;
       const res = await fetch(`${backendUrl}/api/send-email`, {
         method: 'POST',
@@ -30,7 +31,10 @@ export default function Home() {
         body: JSON.stringify({
           to,
           subject,
-          htmlContent: `<p>${message}</p>`,
+          htmlContent: `<div style="font-family: Arial, sans-serif; line-height: 1.6;">
+          <p>${message}</p>
+          <p>Notice: Do not reply to this email. Send us a reply at ${receiverEmail}</p>
+          </div>`,
         } satisfies SendEmailRequest),
       });
 
@@ -51,8 +55,8 @@ export default function Home() {
 
   return (
     <main className="max-w-lg mx-auto p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Client Email Portal</h1>
+      <div className="flex justify-between items-center mb-6 gap-3">
+        <h1 className="text-2xl font-bold pr-2.5">Client Email Portal</h1>
         <Link
           href="/inbox"
           className="bg-gray-100 hover:bg-gray-200 border px-3 py-1.5 rounded text-sm font-medium transition"

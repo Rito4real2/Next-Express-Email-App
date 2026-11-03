@@ -39,8 +39,8 @@ export default function InboxPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Client Inbox</h1>
+      <div className="flex justify-between items-center mb-6 gap-3">
+        <h1 className="text-2xl font-bold pr-2.5">Client Inbox</h1>
         <button
           onClick={fetchEmails}
           className="bg-gray-100 border px-3 py-1 rounded text-sm hover:bg-gray-200"

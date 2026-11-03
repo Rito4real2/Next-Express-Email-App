@@ -31,10 +31,28 @@ export default function Home() {
         body: JSON.stringify({
           to,
           subject,
-          htmlContent: `<div style="font-family: Arial, sans-serif; line-height: 1.6;">
-          <p>${message}</p>
-          <p>Notice: Do not reply to this email. Send us a reply at ${receiverEmail}</p>
-          </div>`,
+          htmlContent: `
+          <div style="background-color: #f4f6f8; padding: 30px 15px; font-family: Arial, sans-serif; color: #333333;">
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+              <tr>
+                <td style="padding: 30px; line-height: 1.6;">
+                  <!-- Main Message Content -->
+                  <div style="font-size: 15px; color: #2d3748; margin-bottom: 25px;">
+                    <p style="margin: 0 0 15px 0;">${message}</p>
+                  </div>
+                  
+                  <!-- Divider Line -->
+                  <hr style="border: none; border-top: 1px solid #edf2f7; margin: 20px 0;" />
+
+                  <!-- Footer / Notice Section -->
+                  <div style="font-size: 13px; color: #718096; line-height: 1.5;">
+                    <p style="margin: 0;">Notice: Do not reply to this email. Send us a reply at ${receiverEmail}, We will get back to you as soon as possible.</p>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </div>
+          `,
         } satisfies SendEmailRequest),
       });
 

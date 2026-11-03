@@ -1,5 +1,6 @@
 'use client';
 import { useState, type FormEvent } from 'react';
+import Link from 'next/link';
 
 interface SendEmailRequest {
   to: string;
@@ -50,7 +51,16 @@ export default function Home() {
 
   return (
     <main className="max-w-lg mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-6">Client Email Portal</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Client Email Portal</h1>
+        <Link
+          href="/inbox"
+          className="bg-gray-100 hover:bg-gray-200 border px-3 py-1.5 rounded text-sm font-medium transition"
+        >
+          View Inbox →
+        </Link>
+      </div>
+
       <form onSubmit={handleSend} className="space-y-4">
         <div>
           <label className="block text-sm font-medium">Client Email</label>

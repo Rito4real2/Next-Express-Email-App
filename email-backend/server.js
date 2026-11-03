@@ -1,41 +1,59 @@
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 require('dotenv').config();
 const { Resend } = require('resend');
 
 const app = express();
 
-// Define allowed origins (your Vercel frontend URL and optionally localhost for testing)
+// Define allowed origins
 const allowedOrigins = [
-  process.env.FRONTEND_URL, // e.g., https://your-app.vercel.app
-  'http://localhost:3000'   // Optional: remove in strict production
+  process.env.FRONTEND_URL,
+  'http://localhost:3000'
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like Postman or server-to-server) or listed origins
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
       callback(new Error('Blocked by CORS: Origin not allowed'));
     }
   },
-  credentials: true, // Required if your app uses cookies or authorization headers
+  credentials: true,
 };
 
-app.use(cors(corsOptions)); // Enable CORS with the defined options
-app.use(express.json()); // Essential for parsing JSON bodies and incoming webhooks
+app.use(cors(corsOptions));
+app.use(express.json());
+
+// 1. Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('Connected to MongoDB successfully'))
+  .catch((err) => console.error('MongoDB connection error:', err));
+
+// 2. Define Email Schema & Model
+const emailSchema = new mongoose.Schema({
+  emailId: { type: String, required: true, unique: true },
+  from: { type: String, required: true },
+  to: [{ type: String }],
+  subject: { type: String },
+  text: { type: String },
+  html: { type: String },
+  receivedAt: { type: Date, default: Date.now },
+});
+
+const Email = mongoose.model('Email', emailSchema);
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const PORT = process.env.PORT || 5000;
 
-// 1. ROUTE: Send email to a client
+// ROUTE: Outbound Send Email
 app.post('/api/send-email', async (req, res) => {
   const { to, subject, htmlContent } = req.body;
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'onboarding@resend.dev', // Use your verified domain in production (e.g., mail@yourdomain.com)
+      from: 'onboarding@resend.dev', // Use verified custom domain in production
       to: [to],
       subject: subject,
       html: htmlContent,
@@ -46,33 +64,50 @@ app.post('/api/send-email', async (req, res) => {
     }
 
     return res.status(200).json({ success: true, data });
-
   } catch (err) {
-
     return res.status(500).json({ success: false, error: err.message });
   }
 });
 
-// 2. ROUTE: Receive inbound emails via Resend Webhook
+// ROUTE: Inbound Webhook (Saves to MongoDB)
 app.post('/api/webhook/inbound', async (req, res) => {
   const event = req.body;
 
-  // Check if the event type is an incoming email
   if (event.type === 'email.received') {
     const emailData = event.data;
 
-    console.log('--- New Email Received ---');
-    console.log(`From: ${emailData.from}`);
-    console.log(`To: ${emailData.to}`);
-    console.log(`Subject: ${emailData.subject}`);
-    console.log(`Email ID: ${emailData.email_id}`);
+    try {
+      // Save incoming email to MongoDB database
+      const newEmail = new Email({
+        emailId: emailData.email_id,
+        from: emailData.from,
+        to: emailData.to,
+        subject: emailData.subject,
+        text: emailData.text || '',
+        html: emailData.html || '',
+      });
 
-    // TODO: Save this email data to your database (MongoDB, PostgreSQL, etc.)
+      await newEmail.save();
+
+      console.log(`Saved email ${emailData.email_id} to MongoDB.`);
+    } catch (dbErr) {
+      console.error('Error saving email to database:', dbErr.message);
+    }
   }
 
-  // Always respond quickly with a 200 OK to acknowledge receipt to Resend
+  // Acknowledge receipt to Resend immediately
   return res.status(200).json({ received: true });
-  
+});
+
+// ROUTE: Fetch Inbox Messages for Frontend
+app.get('/api/emails', async (req, res) => {
+  try {
+    // Retrieve all emails sorted by newest first
+    const emails = await Email.find().sort({ receivedAt: -1 });
+    return res.status(200).json({ success: true, emails });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 app.listen(PORT, () => {

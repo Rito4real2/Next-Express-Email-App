@@ -53,7 +53,7 @@ app.post('/api/send-email', async (req, res) => {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'onboarding@resend.dev', // Use verified custom domain in production
+      from: 'support@astrofinex.online', // Use verified custom domain in production
       to: [to],
       subject: subject,
       html: htmlContent,

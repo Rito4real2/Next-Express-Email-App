@@ -80,11 +80,11 @@ app.post('/api/webhook/inbound', async (req, res) => {
 
     try {
       // 1. Fetch the full email content (text, html, headers) from Resend
-      const { data: fullEmail, error } = await resend.emails.get(emailId);
+      const { data: fullEmail, error } = await resend.emails.receiving.get(emailId);
 
       if (error) {
         console.error('Failed to fetch full email content from Resend:', error);
-        res.status(400).json({ success: false, error });
+        return res.status(400).json({ success: false, error });
       }
 
       // 2. Save the complete email details to MongoDB

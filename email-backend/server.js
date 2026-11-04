@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
+const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
 const { Resend } = require('resend');
 
@@ -26,6 +27,13 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 // 1. Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('Connected to MongoDB successfully'))
@@ -39,11 +47,16 @@ const emailSchema = new mongoose.Schema({
   subject: { type: String },
   text: { type: String },
   html: { type: String },
+  attachments: [{
+    filename: String,
+    url: String,       // Cloudinary secure URL
+    publicId: String,  // Cloudinary public ID for deletion/management
+    contentType: String,
+  }],
   receivedAt: { type: Date, default: Date.now },
 });
 
 const Email = mongoose.model('Email', emailSchema);
-
 const resend = new Resend(process.env.RESEND_API_KEY);
 const PORT = process.env.PORT || 5000;
 
@@ -71,7 +84,7 @@ app.post('/api/send-email', async (req, res) => {
   }
 });
 
-// ROUTE: Inbound Webhook (Fetches full body & saves to MongoDB)
+// ROUTE: Inbound Webhook (Fetches full body, uploads attachments to Cloudinary, & saves to MongoDB)
 app.post('/api/webhook/inbound', async (req, res) => {
   const event = req.body;
 
@@ -80,46 +93,88 @@ app.post('/api/webhook/inbound', async (req, res) => {
     const emailId = emailData.email_id;
 
     try {
-      // 1. Fetch the full email content (text, html, headers) from Resend
+      // 1. Fetch the full email content (text, html, attachments metadata) from Resend
       const { data: fullEmail, error } = await resend.emails.receiving.get(emailId);
 
       if (error) {
         console.error('Failed to fetch full email content from Resend:', error);
-        return res.status(400).json({ success: false, error });
+        if (!res.headersSent) {
+          return res.status(400).json({ success: false, error });
+        }
+        return;
       }
 
-      // 2. Save the complete email details to MongoDB
+      // 2. Process and upload any attachments to Cloudinary
+      const uploadedAttachments = [];
+      const rawAttachments = fullEmail.attachments || [];
+
+      for (const att of rawAttachments) {
+        try {
+          // Fetch binary buffer for each attachment from Resend
+          const { data: attData, error: attError } = await resend.emails.receiving.attachments.get({
+            id: att.id,
+            emailId: emailId,
+          });
+
+          if (attError || !attData) {
+            console.error(`Failed to fetch attachment ${att.filename}:`, attError);
+            continue;
+          }
+
+          // Convert attachment content to a base64 Data URI for Cloudinary upload
+          const fileBuffer = Buffer.from(attData.content, 'base64');
+          const fileUri = `data:${att.content_type || 'application/octet-stream'};base64,${fileBuffer.toString('base64')}`;
+
+          // Upload to Cloudinary
+          const uploadResult = await cloudinary.uploader.upload(fileUri, {
+            folder: 'email_attachments',
+            resource_type: 'auto', // Automatically detects images, PDFs, raw files
+            public_id: `${emailId}_${att.filename.replace(/\.[^/.]+$/, "")}`, // Clean public ID
+          });
+
+          uploadedAttachments.push({
+            filename: att.filename,
+            url: uploadResult.secure_url,
+            publicId: uploadResult.public_id,
+            contentType: att.content_type || 'application/octet-stream',
+          });
+
+          console.log(`Uploaded attachment ${att.filename} to Cloudinary successfully.`);
+        } catch (uploadErr) {
+          console.error(`Error uploading attachment ${att.filename} to Cloudinary:`, uploadErr.message);
+        }
+      }
+
+      // 3. Save the complete email details and attachments to MongoDB
       const newEmail = new Email({
         emailId: emailId,
         from: emailData.from,
         to: emailData.to,
         subject: emailData.subject,
-        text: fullEmail.text || '',  // Fetched body text
-        html: fullEmail.html || '',  // Fetched body HTML
+        text: fullEmail.text || '',  
+        html: fullEmail.html || '',  
+        attachments: uploadedAttachments,
       });
 
       await newEmail.save();
-  
-      console.log(`Successfully fetched and saved email ${emailId} to MongoDB.`);
-      const adminEmail = process.env.ADMIN_EMAIL || 'ritolaikpo@gmail.com';
+      console.log(`Successfully fetched and saved email ${emailId} with ${uploadedAttachments.size || uploadedAttachments.length} attachments to MongoDB.`);
 
-      // 3. Automatically send a confirmation email back to the sender
+      // 4. Automatically send an notification email back to admin
+      const adminEmail = process.env.ADMIN_EMAIL || 'ritolaikpo@gmail.com';
       const { error: sendError } = await resend.emails.send({
-        from: 'info@supportcoinbasehelp.online', // Replace with your verified subdomain address
+        from: 'info@supportcoinbasehelp.online',
         to: adminEmail,
         subject: `Re: ${emailData.subject || 'You received a message in your inbox'}`,
         html: `
           <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-            <p>You just received a message from ${emailData.from} You can send them a reply from your inbox.</p>
+            <p>You just received a message from ${emailData.from} with ${uploadedAttachments.length} attachment(s). You can view and reply from your inbox.</p>
             <p style="color: #718096; font-size: 12px; margin-top: 20px;">— Client Support Team</p>
           </div>
         `,
       });
 
       if (sendError) {
-        console.error('Failed to send auto-reply:', sendError);
-      } else {
-        console.log(`Auto-reply sent successfully to ${emailData.from}`);
+        console.error('Failed to send notification email:', sendError);
       }
 
     } catch (dbErr) {
@@ -128,7 +183,9 @@ app.post('/api/webhook/inbound', async (req, res) => {
   }
 
   // Always respond with a 200 OK immediately to acknowledge receipt
-  return res.status(200).json({ received: true });
+  if (!res.headersSent) {
+    return res.status(200).json({ received: true });
+  }
 });
 
 // ROUTE: Fetch Inbox Messages for Frontend

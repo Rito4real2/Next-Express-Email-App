@@ -2,6 +2,13 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 
+interface Attachment {
+  _id?: string;
+  filename: string;
+  url: string;
+  contentType: string;
+}
+
 interface Email {
   _id: string;
   emailId: string;
@@ -10,6 +17,7 @@ interface Email {
   subject?: string;
   text?: string;
   html?: string;
+  attachments?: Attachment[];
   receivedAt: string;
 }
 
@@ -140,6 +148,8 @@ export default function InboxPage() {
                 <h2 className="text-lg font-semibold text-cyan-200 mb-3">
                   {email.subject || '(No Subject)'}
                 </h2>
+                
+                {/* Email Body */}
                 <div className="text-sm text-slate-300 bg-slate-900/50 p-4 rounded-xl border border-white/5 mb-4">
                   {email.text || email.html ? (
                     <p className="whitespace-pre-wrap">{email.text || 'HTML content received'}</p>
@@ -147,6 +157,28 @@ export default function InboxPage() {
                     <p className="italic text-slate-500">Empty message body</p>
                   )}
                 </div>
+
+                {/* Attachments Section */}
+                {email.attachments && email.attachments.length > 0 && (
+                  <div className="mb-4 border-t border-white/10 pt-3">
+                    <p className="text-xs font-semibold text-slate-400 mb-2">Attachments ({email.attachments.length}):</p>
+                    <div className="flex flex-wrap gap-2">
+                      {email.attachments.map((att, idx) => (
+                        <a
+                          key={idx}
+                          href={att.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 bg-slate-900/80 border border-white/10 hover:border-cyan-500/50 px-3 py-2 rounded-xl text-xs text-slate-200 transition group"
+                        >
+                          <span className="text-cyan-400">📎</span>
+                          <span className="truncate max-w-[160px] group-hover:text-white">{att.filename}</span>
+                          <span className="text-[10px] text-slate-500 bg-white/5 px-1.5 py-0.5 rounded">Download</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Actions: Reply & Delete */}
                 <div className="flex items-center justify-between border-t border-white/5 pt-3">

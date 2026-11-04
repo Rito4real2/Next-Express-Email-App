@@ -32,29 +32,74 @@ export default function Home() {
           to,
           subject,
           htmlContent: `
-          <div style="border: 1px solid #ddd; background-color: #fff">
-            <main style="background-color: #fff;">
-                <div>
-                    <h1 style="color: rgba(0, 128, 255, 0.997); display: flex; padding: 60px; align-items: center; justify-content: center; font-size: 60px;">coinbase</h1>
-                </div>
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff; font-family: Arial, sans-serif; border: 1px solid #ddd; border-radius: 6px; overflow: hidden; max-width: 600px; margin: 0 auto;">
+              <tr>
+                <td style="padding: 0; background-color: #ffffff;">
+                  <main style="background-color: #ffffff; padding: 0;">
+                    <!-- Header / Logo -->
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td align="center" style="padding: 40px 20px;">
+                          <h1 style="color: #0052ff; margin: 0; font-size: 40px; font-weight: bold; text-transform: lowercase; text-align: center;">coinbase</h1>
+                        </td>
+                      </tr>
+                    </table>
 
-                <h2 style="padding: 20px; font-size: 15px; color: gray;">${subject}</h2>
-                <p style="font-size: 12px; color: gray; padding: 20px;">${message}</p>
-                
-            </main>
-            <footer style="background-color: #ddd; padding-bottom: 10px; padding-top: 10px; width: 100%; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px;">
-              
-                <ol style="list-style: disc;">
-                    <li style="font-size: 12px; color: gray;">Coinbase is a secure platform that makes it easy to buy, sell and store cryptocurrencies like BITCOIN, ETHEREUM and more. Based in the USA, coinbase is available in over 100 countries worldwide</li>
-                </ol>
+                    <!-- Subject / Title -->
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td style="padding: 10px 20px;">
+                          <h2 style="margin: 0; font-size: 15px; color: #555555; font-weight: normal;">${subject}</h2>
+                        </td>
+                      </tr>
+                    </table>
 
-                <hr style="border: none; border-top: 0.5px solid grey; margin: 20px 0;" />
+                    <!-- Message Body -->
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                      <tr>
+                        <td style="padding: 10px 20px 30px 20px;">
+                          <p style="margin: 0; font-size: 13px; color: #555555; line-height: 1.5;">${message}</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </main>
 
-                <p style="font-size: 12px; color: gray; padding: 20px;">If you experience any issues or have any questions. Please send us a reply and we will reply as soon as possible. Be on the watchout for fraud and potential scams. if you are aware of fraud or scam contact us</p>
-                <h2 style="color: rgba(0, 128, 255, 0.997); display: flex; align-items: center; justify-content: center;">coinbase</h2>
+                  <!-- Footer -->
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ddd; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px;">
+                    <tr>
+                      <td style="padding: 20px;">
+                        <!-- Disclaimer List -->
+                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                          <tr>
+                            <td style="padding-left: 15px;">
+                              <p style="margin: 0; font-size: 12px; color: #555555; line-height: 1.4;">
+                                • Coinbase is a secure platform that makes it easy to buy, sell and store cryptocurrencies like BITCOIN, ETHEREUM and more. Based in the USA, coinbase is available in over 100 countries worldwide
+                              </p>
+                            </td>
+                          </tr>
+                        </table>
 
-            </footer>
-        </div>
+                        <hr style="border: none; border-top: 0.5px solid #bbb; margin: 20px 0;" />
+
+                        <!-- Support & Security Notice -->
+                        <p style="margin: 0 0 20px 0; font-size: 12px; color: #555555; line-height: 1.4; padding: 0 5px;">
+                          If you experience any issues or have any questions. Please send us a reply and we will reply as soon as possible. Be on the watchout for fraud and potential scams. if you are aware of fraud or scam contact us
+                        </p>
+
+                        <!-- Footer Logo -->
+                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                          <tr>
+                            <td align="center">
+                              <h2 style="color: #0052ff; margin: 0; font-size: 24px; font-weight: bold; text-transform: lowercase; text-align: center;">coinbase</h2>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
           `,
         } satisfies SendEmailRequest),
       });

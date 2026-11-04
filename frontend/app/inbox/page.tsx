@@ -20,6 +20,7 @@ export default function InboxPage() {
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
   const [replyMessage, setReplyMessage] = useState<string>('');
   const [sendingStatus, setSendingStatus] = useState<string>('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchEmails = async (): Promise<void> => {
     try {
@@ -40,6 +41,30 @@ export default function InboxPage() {
   useEffect(() => {
     fetchEmails();
   }, []);
+
+  const handleDeleteEmail = async (id: string): Promise<void> => {
+    if (!window.confirm('Are you sure you want to delete this email?')) return;
+
+    setDeletingId(id);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${apiUrl}/api/emails/${id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setEmails((prevEmails) => prevEmails.filter((email) => email._id !== id));
+      } else {
+        alert('Failed to delete email.');
+      }
+    } catch (err) {
+      console.error('Error deleting email:', err);
+      alert('An error occurred while deleting the email.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleSendReply = async (e: FormEvent<HTMLFormElement>, recipientEmail: string, originalSubject?: string) => {
     e.preventDefault();
@@ -123,17 +148,33 @@ export default function InboxPage() {
                   )}
                 </div>
 
-                {replyingToId !== email._id ? (
+                {/* Actions: Reply & Delete */}
+                <div className="flex items-center justify-between border-t border-white/5 pt-3">
+                  {replyingToId !== email._id ? (
+                    <button
+                      onClick={() => {
+                        setReplyingToId(email._id);
+                        setSendingStatus('');
+                      }}
+                      className="text-sm text-cyan-400 hover:text-cyan-300 font-medium transition"
+                    >
+                      Reply to Client ↩
+                    </button>
+                  ) : (
+                    <span className="text-xs text-slate-400">Replying to client...</span>
+                  )}
+
                   <button
-                    onClick={() => {
-                      setReplyingToId(email._id);
-                      setSendingStatus('');
-                    }}
-                    className="text-sm text-cyan-400 hover:text-cyan-300 font-medium transition"
+                    onClick={() => handleDeleteEmail(email._id)}
+                    disabled={deletingId === email._id}
+                    className="text-sm text-rose-400 hover:text-rose-300 font-medium transition disabled:opacity-50"
                   >
-                    Reply to Client ↩
+                    {deletingId === email._id ? 'Deleting...' : 'Delete Email 🗑️'}
                   </button>
-                ) : (
+                </div>
+
+                {/* Inline Reply Form */}
+                {replyingToId === email._id && (
                   <form
                     onSubmit={(e) => handleSendReply(e, email.from, email.subject)}
                     className="mt-4 border-t border-white/10 pt-4 space-y-3 bg-slate-900/80 p-4 rounded-xl"

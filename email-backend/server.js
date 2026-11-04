@@ -65,6 +65,7 @@ app.post('/api/send-email', async (req, res) => {
     }
 
     return res.status(200).json({ success: true, data });
+
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
@@ -104,7 +105,7 @@ app.post('/api/webhook/inbound', async (req, res) => {
 
       // 3. Automatically send a confirmation email back to the sender
       const { error: sendError } = await resend.emails.send({
-        from: '<info@supportcoinbasehelp.online>', // Replace with your verified subdomain address
+        from: 'info@supportcoinbasehelp.online', // Replace with your verified subdomain address
         to: adminEmail,
         subject: `Re: ${emailData.subject || 'You received a message in your inbox'}`,
         html: `
@@ -137,6 +138,25 @@ app.get('/api/emails', async (req, res) => {
     const emails = await Email.find().sort({ receivedAt: -1 });
     return res.status(200).json({ success: true, emails });
   } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ROUTE: Delete an Email by ID
+app.delete('/api/emails/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedEmail = await Email.findByIdAndDelete(id);
+
+    if (!deletedEmail) {
+      return res.status(404).json({ success: false, message: 'Email not found' });
+    }
+
+    console.log(`Successfully deleted email ${id} from MongoDB.`);
+    return res.status(200).json({ success: true, message: 'Email deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting email:', err.message);
     return res.status(500).json({ success: false, error: err.message });
   }
 });

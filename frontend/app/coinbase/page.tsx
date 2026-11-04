@@ -32,7 +32,7 @@ export default function Home() {
           to,
           subject,
           htmlContent: `
-          <div style="background-color: white;">
+          <div style="border: 1px solid #ddd">
             <main style="background-color: #fff;>
                 <div>
                     <h1 style="color: rgba(0, 128, 255, 0.997); display: flex; padding: 60px; align-items: center; justify-content: center; font-size: 60px;">coinbase</h1>

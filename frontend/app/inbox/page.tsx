@@ -17,7 +17,6 @@ export default function InboxPage() {
   const [emails, setEmails] = useState<Email[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // State to track which email is currently being replied to (stores the email _id)
   const [replyingToId, setReplyingToId] = useState<string | null>(null);
   const [replyMessage, setReplyMessage] = useState<string>('');
   const [sendingStatus, setSendingStatus] = useState<string>('');
@@ -73,91 +72,107 @@ export default function InboxPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6 gap-3">
-        <div className="flex items-center gap-4">
-          <Link href="/" className="text-sm text-blue-600 hover:underline">
-            ← Back to Compose
-          </Link>
-          <h1 className="text-2xl font-bold">Client Inbox</h1>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 text-white flex flex-col justify-between">
+      {/* Header */}
+      <header className="max-w-4xl mx-auto w-full px-6 py-6 flex justify-between items-center border-b border-white/10">
+        <Link href="/" className="text-sm font-medium text-cyan-300 hover:text-white transition">
+          ← Back to Home
+        </Link>
         <button
           onClick={fetchEmails}
-          className="bg-gray-100 border px-3 py-1 rounded text-sm hover:bg-gray-200"
+          className="bg-white/10 hover:bg-white/15 text-white text-sm font-semibold px-4 py-2 rounded-xl border border-white/10 transition"
         >
-          Refresh Inbox
+          Refresh Inbox 🔄
         </button>
-      </div>
+      </header>
 
-      {loading ? (
-        <p>Loading emails...</p>
-      ) : emails.length === 0 ? (
-        <p className="text-gray-500">No incoming emails found.</p>
-      ) : (
-        <div className="space-y-4">
-          {emails.map((email) => (
-            <div key={email._id} className="border rounded-lg p-4 shadow-sm bg-white">
-              <div className="flex justify-between text-sm text-gray-500 mb-1">
-                <span>From: <strong>{email.from}</strong></span>
-                <span>{new Date(email.receivedAt).toLocaleString()}</span>
-              </div>
-              <h2 className="text-lg font-semibold text-gray-800 mb-2">
-                {email.subject || '(No Subject)'}
-              </h2>
-              <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded border mb-3">
-                {email.text || email.html ? (
-                  <p className="whitespace-pre-wrap">{email.text || 'HTML content received'}</p>
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto w-full px-6 py-10 flex-grow">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-cyan-400 to-indigo-300 bg-clip-text text-transparent">
+            Client Inbox
+          </h1>
+          <span className="text-xs px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 font-semibold">
+            {emails.length} Messages
+          </span>
+        </div>
+
+        {loading ? (
+          <p className="text-slate-400 text-center py-12">Loading emails...</p>
+        ) : emails.length === 0 ? (
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-12 text-center text-slate-400">
+            <p className="text-lg mb-2">No incoming emails found.</p>
+            <p className="text-sm text-slate-500">Replies sent by clients to your subdomain webhook will appear here.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {emails.map((email) => (
+              <div key={email._id} className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-md shadow-lg transition hover:border-cyan-500/30">
+                <div className="flex flex-col sm:flex-row justify-between text-xs text-slate-400 mb-3 gap-1">
+                  <span>From: <strong className="text-white">{email.from}</strong></span>
+                  <span>{new Date(email.receivedAt).toLocaleString()}</span>
+                </div>
+                <h2 className="text-lg font-semibold text-cyan-200 mb-3">
+                  {email.subject || '(No Subject)'}
+                </h2>
+                <div className="text-sm text-slate-300 bg-slate-900/50 p-4 rounded-xl border border-white/5 mb-4">
+                  {email.text || email.html ? (
+                    <p className="whitespace-pre-wrap">{email.text || 'HTML content received'}</p>
+                  ) : (
+                    <p className="italic text-slate-500">Empty message body</p>
+                  )}
+                </div>
+
+                {replyingToId !== email._id ? (
+                  <button
+                    onClick={() => {
+                      setReplyingToId(email._id);
+                      setSendingStatus('');
+                    }}
+                    className="text-sm text-cyan-400 hover:text-cyan-300 font-medium transition"
+                  >
+                    Reply to Client ↩
+                  </button>
                 ) : (
-                  <p className="italic text-gray-400">Empty message body</p>
+                  <form
+                    onSubmit={(e) => handleSendReply(e, email.from, email.subject)}
+                    className="mt-4 border-t border-white/10 pt-4 space-y-3 bg-slate-900/80 p-4 rounded-xl"
+                  >
+                    <p className="text-xs text-slate-400">Replying to: <strong className="text-white">{email.from}</strong></p>
+                    <textarea
+                      value={replyMessage}
+                      onChange={(e) => setReplyMessage(e.target.value)}
+                      placeholder="Type your reply here..."
+                      required
+                      className="w-full bg-slate-950 border border-white/10 p-3 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 h-28 resize-none"
+                    />
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="submit"
+                        className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-xl shadow-md transition"
+                      >
+                        Send Reply
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setReplyingToId(null)}
+                        className="text-sm text-slate-400 hover:text-white transition"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    {sendingStatus && <p className="text-xs font-semibold text-cyan-300">{sendingStatus}</p>}
+                  </form>
                 )}
               </div>
+            ))}
+          </div>
+        )}
+      </main>
 
-              {/* Reply Button & Inline Form */}
-              {replyingToId !== email._id ? (
-                <button
-                  onClick={() => {
-                    setReplyingToId(email._id);
-                    setSendingStatus('');
-                  }}
-                  className="text-sm text-blue-600 font-medium hover:underline"
-                >
-                  Reply to Client ↩
-                </button>
-              ) : (
-                <form
-                  onSubmit={(e) => handleSendReply(e, email.from, email.subject)}
-                  className="mt-3 border-t pt-3 space-y-3 bg-gray-50 p-3 rounded"
-                >
-                  <p className="text-xs text-gray-500">Replying to: <strong>{email.from}</strong></p>
-                  <textarea
-                    value={replyMessage}
-                    onChange={(e) => setReplyMessage(e.target.value)}
-                    placeholder="Type your reply here..."
-                    required
-                    className="w-full border p-2 rounded text-sm h-24 bg-white"
-                  />
-                  <div className="flex items-center gap-3">
-                    <button
-                      type="submit"
-                      className="bg-blue-600 text-white text-sm px-3 py-1.5 rounded hover:bg-blue-700"
-                    >
-                      Send Reply
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setReplyingToId(null)}
-                      className="text-sm text-gray-600 hover:underline"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                  {sendingStatus && <p className="text-xs font-semibold text-gray-700">{sendingStatus}</p>}
-                </form>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      <footer className="border-t border-white/10 py-6 text-center text-xs text-slate-500">
+        <p>© {new Date().getFullYear()} MailPortal. Live Client Inbox.</p>
+      </footer>
     </div>
   );
 }

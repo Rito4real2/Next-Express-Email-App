@@ -98,7 +98,29 @@ app.post('/api/webhook/inbound', async (req, res) => {
       });
 
       await newEmail.save();
+  
       console.log(`Successfully fetched and saved email ${emailId} to MongoDB.`);
+      const adminEmail = process.env.ADMIN_EMAIL || 'ritolaikpo@gmail.com';
+
+      // 3. Automatically send a confirmation email back to the sender
+      const { error: sendError } = await resend.emails.send({
+        from: '<support@inbound.astrofinex.online>', // Replace with your verified subdomain address
+        to: adminEmail,
+        subject: `Re: ${emailData.subject || 'You received a message in your inbox'}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+            <p>You just received a message from ${emailData.from} You can send them a reply from your inbox.</p>
+            <p style="color: #718096; font-size: 12px; margin-top: 20px;">— Client Support Team</p>
+          </div>
+        `,
+      });
+
+      if (sendError) {
+        console.error('Failed to send auto-reply:', sendError);
+      } else {
+        console.log(`Auto-reply sent successfully to ${emailData.from}`);
+      }
+
     } catch (dbErr) {
       console.error('Error processing inbound webhook:', dbErr.message);
     }

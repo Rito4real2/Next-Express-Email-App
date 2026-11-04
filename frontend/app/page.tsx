@@ -95,7 +95,7 @@ const LandingPage = () => {
 
       {/* Footer */}
       <footer className="border-t border-white/10 py-6 text-center text-xs text-slate-500">
-        <p>© {new Date().getFullYear()} MailPortal. Built with Next.js, Express, and Resend.</p>
+        <p>© 2026 MailPortal. Built with Next.js, Express, and Resend.</p>
       </footer>
     </div>
   );

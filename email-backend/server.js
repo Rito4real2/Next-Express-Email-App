@@ -70,33 +70,41 @@ app.post('/api/send-email', async (req, res) => {
   }
 });
 
-// ROUTE: Inbound Webhook (Saves to MongoDB)
+// ROUTE: Inbound Webhook (Fetches full body & saves to MongoDB)
 app.post('/api/webhook/inbound', async (req, res) => {
   const event = req.body;
 
   if (event.type === 'email.received') {
     const emailData = event.data;
+    const emailId = emailData.email_id;
 
     try {
-      // Save incoming email to MongoDB database
+      // 1. Fetch the full email content (text, html, headers) from Resend
+      const { data: fullEmail, error } = await resend.emails.get(emailId);
+
+      if (error) {
+        console.error('Failed to fetch full email content from Resend:', error);
+        res.status(400).json({ success: false, error });
+      }
+
+      // 2. Save the complete email details to MongoDB
       const newEmail = new Email({
-        emailId: emailData.email_id,
+        emailId: emailId,
         from: emailData.from,
         to: emailData.to,
         subject: emailData.subject,
-        text: emailData.text || '',
-        html: emailData.htmlContent || '',
+        text: fullEmail.text || '',  // Fetched body text
+        html: fullEmail.html || '',  // Fetched body HTML
       });
 
       await newEmail.save();
-
-      console.log(`Saved email ${emailData.email_id} to MongoDB.`);
+      console.log(`Successfully fetched and saved email ${emailId} to MongoDB.`);
     } catch (dbErr) {
-      console.error('Error saving email to database:', dbErr.message);
+      console.error('Error processing inbound webhook:', dbErr.message);
     }
   }
 
-  // Acknowledge receipt to Resend immediately
+  // Always respond with a 200 OK immediately to acknowledge receipt
   return res.status(200).json({ received: true });
 });
 

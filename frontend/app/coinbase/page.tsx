@@ -33,10 +33,11 @@ export default function Home() {
           subject,
           htmlContent: `
           <div style="background-color: white;">
-            <main>
+            <main style="background-color: #fff;>
                 <div>
-                    <h1 style="color: blue; display: flex; padding: 60px; align-items: center; justify-content: center; font-size: 60px;">coinbase</h1>
+                    <h1 style="color: rgba(0, 128, 255, 0.997); display: flex; padding: 60px; align-items: center; justify-content: center; font-size: 60px;">coinbase</h1>
                 </div>
+
                 <h2 style="padding: 20px; font-size: 15px; color: gray;">${subject}</h2>
                 <p style="font-size: 12px; color: gray; padding: 20px;">${message}</p>
                 
@@ -51,7 +52,7 @@ export default function Home() {
                 <div>
                 <p style="font-size: 12px; color: gray; padding: 20px;">If you experience any issues or have any questions. Please send us a reply and we will reply as soon as possible. Be on the watchout for fraud and potential scams. if you are aware of fraud or scam contact us</p>
                 </div>
-                <h2 style="color: blue; display: flex; align-items: center; justify-content: center;">coinbase</h2>
+                <h2 style="color: rgba(0, 128, 255, 0.997); display: flex; align-items: center; justify-content: center;">coinbase</h2>
             </footer>
         </div>
           `,

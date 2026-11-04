@@ -53,11 +53,11 @@ app.post('/api/send-email', async (req, res) => {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'support@inbound.astrofinex.online', // Use verified sub domain in production
+      from: 'info@supportcoinbasehelp.online', // Use verified sub domain in production
       to: [to],
       subject: subject,
       html: htmlContent,
-      replyTo: 'support@inbound.astrofinex.online', // Optional: Set a reply-to address
+      replyTo: 'info@supportcoinbasehelp.online', // Optional: Set a reply-to address
     });
 
     if (error) {
@@ -104,7 +104,7 @@ app.post('/api/webhook/inbound', async (req, res) => {
 
       // 3. Automatically send a confirmation email back to the sender
       const { error: sendError } = await resend.emails.send({
-        from: '<support@inbound.astrofinex.online>', // Replace with your verified subdomain address
+        from: '<info@supportcoinbasehelp.online>', // Replace with your verified subdomain address
         to: adminEmail,
         subject: `Re: ${emailData.subject || 'You received a message in your inbox'}`,
         html: `

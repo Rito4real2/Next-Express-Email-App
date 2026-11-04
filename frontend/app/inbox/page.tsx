@@ -9,7 +9,7 @@ interface Email {
   to: string[];
   subject?: string;
   text?: string;
-  html?: string;
+  htmlContent?: string;
   receivedAt: string;
 }
 
@@ -65,7 +65,7 @@ export default function InboxPage() {
                 {email.subject || '(No Subject)'}
               </h2>
               <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded border">
-                {email.text || email.html ? (
+                {email.text || email.htmlContent ? (
                   <p className="whitespace-pre-wrap">{email.text || 'HTML content received'}</p>
                 ) : (
                   <p className="italic text-gray-400">Empty message body</p>

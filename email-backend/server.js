@@ -85,7 +85,7 @@ app.post('/api/webhook/inbound', async (req, res) => {
         to: emailData.to,
         subject: emailData.subject,
         text: emailData.text || '',
-        html: emailData.html || '',
+        html: emailData.htmlContent || '',
       });
 
       await newEmail.save();

@@ -40,7 +40,7 @@ export default function Home() {
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                       <tr>
                         <td align="center" style="padding: 40px 20px;">
-                          <h1 style="color: #0052ff; margin: 0; font-size: 40px; font-weight: bold; text-transform: lowercase; text-align: center;">coinbase</h1>
+                          <h1 style="color: #0080fffe; margin: 0; font-size: 40px; font-weight: bold; text-transform: lowercase; text-align: center;">coinbase</h1>
                         </td>
                       </tr>
                     </table>
@@ -90,7 +90,7 @@ export default function Home() {
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
                           <tr>
                             <td align="center">
-                              <h2 style="color: #0052ff; margin: 0; font-size: 24px; font-weight: bold; text-transform: lowercase; text-align: center;">coinbase</h2>
+                              <h2 style="color: #0080fffe; margin: 0; font-size: 24px; font-weight: bold; text-transform: lowercase; text-align: center;">coinbase</h2>
                             </td>
                           </tr>
                         </table>

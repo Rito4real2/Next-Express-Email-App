@@ -147,7 +147,7 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-white/10 py-6 text-center text-xs text-slate-500">
-        <p>© {new Date().getFullYear()} MailPortal. Secure Dispatch Engine.</p>
+        <p>© 2026 MailPortal. Secure Dispatch Engine.</p>
       </footer>
     </div>
   );

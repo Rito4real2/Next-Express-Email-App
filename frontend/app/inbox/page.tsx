@@ -171,7 +171,7 @@ export default function InboxPage() {
       </main>
 
       <footer className="border-t border-white/10 py-6 text-center text-xs text-slate-500">
-        <p>© {new Date().getFullYear()} MailPortal. Live Client Inbox.</p>
+        <p>© 2026 MailPortal. Live Client Inbox.</p>
       </footer>
     </div>
   );

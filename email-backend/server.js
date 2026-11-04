@@ -53,10 +53,11 @@ app.post('/api/send-email', async (req, res) => {
 
   try {
     const { data, error } = await resend.emails.send({
-      from: 'support@astrofinex.online', // Use verified custom domain in production
+      from: 'support@inbound.astrofinex.online', // Use verified sub domain in production
       to: [to],
       subject: subject,
       html: htmlContent,
+      replyTo: 'support@inbound.astrofinex.online', // Optional: Set a reply-to address
     });
 
     if (error) {

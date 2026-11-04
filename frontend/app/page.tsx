@@ -1,6 +1,9 @@
 import React from 'react';
 import Link from 'next/link';
 
+// Force Next.js to render this page dynamically at request time instead of prerendering
+export const dynamic = 'force-dynamic';
+
 const LandingPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-950 text-white flex flex-col justify-between">

@@ -1,8 +1,7 @@
+'use client';
 import React from 'react';
 import Link from 'next/link';
 
-// Force Next.js to render this page dynamically at request time instead of prerendering
-export const dynamic = 'force-dynamic';
 
 const LandingPage = () => {
   return (

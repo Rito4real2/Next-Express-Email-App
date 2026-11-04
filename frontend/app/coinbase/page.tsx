@@ -32,28 +32,26 @@ export default function Home() {
           to,
           subject,
           htmlContent: `
-          <div>
+          <div style="background-color: white;">
             <main>
                 <div>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Coinbase_Logo.png" alt="Coinbase Logo" style="width: 150px; height: auto; display: block; margin: 0 auto;" />
                     <h1 style="color: blue; display: flex; padding: 60px; align-items: center; justify-content: center; font-size: 60px;">coinbase</h1>
                 </div>
-                <h2 style="padding: 20px;">Subject</h2>
+                <h2 style="padding: 20px; font-size: 15px; color: gray;">${subject}</h2>
                 <p style="font-size: 12px; color: gray; padding: 20px;">${message}</p>
                 
             </main>
             <footer style="background-color: #ddd; padding-bottom: 10px; padding-top: 10px; width: 100%; border-bottom-left-radius: 6px; border-bottom-right-radius: 6px;">
               
-                <ol style="list-style: disc; display: flex; flex-direction: column; gap: 10px;">
+                <ol style="list-style: disc;">
                     <li style="font-size: 12px; color: gray;">Coinbase is a secure platform that makes it easy to buy, sell and store cryptocurrencies like BITCOIN, ETHEREUM and more. Based in the USA, coinbase is available in over 100 countries worldwide</li>
-                    <li style="font-size: 12px; color: gray;">@ 2026 Coinbase</li>
                 </ol>
 
                 <hr style="border: none; border-top: 0.5px solid grey; margin: 20px 0;" />
                 <div>
                 <p style="font-size: 12px; color: gray; padding: 20px;">If you experience any issues or have any questions. Please send us a reply and we will reply as soon as possible. Be on the watchout for fraud and potential scams. if you are aware of fraud or scam contact us</p>
-                <h2 style="color: blue; display: flex; align-items: center; justify-content: center;">coinbase</h2>
                 </div>
+                <h2 style="color: blue; display: flex; align-items: center; justify-content: center;">coinbase</h2>
             </footer>
         </div>
           `,
